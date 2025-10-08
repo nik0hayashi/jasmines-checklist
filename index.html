@@ -1,18 +1,20 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Shared Checklist</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jasmine’s Checklist</title>
 
-  <style>
-/* === ORIGINAL STYLE - left unchanged === */
+<!-- ✅ Added Google Fonts import for Fraunces -->
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
 .checklist {
   list-style: none;
   padding: 0;
   max-width: 300px;
   margin: 0 auto;
-  font-family: fraunces;
+  font-family: 'Fraunces', serif;
 }
 .checklist li {
   display: flex;
@@ -30,13 +32,13 @@
   animation: checkAnim 0.5s ease-out;
 }
 .checklist li::before {
-  content: "🔒";
+  content: "🎁";
   margin-right: 10px;
   font-size: 18px;
   transition: transform 0.3s ease;
 }
 .checklist li.checked::before {
-  content: "🔓";
+  content: "📗";
   color: gray;
   transform: scale(1.3);
 }
@@ -45,273 +47,150 @@
   50% { transform: scale(1.05); }
   100% { transform: scale(1); }
 }
-
-/* Top-left last-updated box, password box, stop button (kept small & matching) */
-#statusBox{
+#statusBox {
   position: fixed;
   top: 10px;
   left: 10px;
   background: #f0f0f0;
   border-radius: 6px;
   padding: 6px 10px;
-  font-family: fraunces;
+  font-family: 'Fraunces', serif;
   font-size: 14px;
   box-shadow: 0 0 5px rgba(0,0,0,0.1);
 }
-#passwordBox{
+#passwordBox {
   position: fixed;
   top: 10px;
   right: 10px;
   background: #fff;
   border-radius: 6px;
   padding: 6px 10px;
-  font-family: fraunces;
+  font-family: 'Fraunces', serif;
   font-size: 14px;
   box-shadow: 0 0 5px rgba(0,0,0,0.1);
 }
-#passwordBox input{border:1px solid #ccc;border-radius:4px;padding:4px;}
-#stopEditBtn{
-  display:none;
-  position: fixed;
-  top: 50px;
-  right: 10px;
-  background: #f0f0f0;
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-family: fraunces;
-  font-size: 14px;
-  cursor: pointer;
-  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+#passwordBox input {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px;
 }
-
-/* edit-mode visual rules (only applied while editing; base CSS remains unchanged) */
-.edit-mode li { color: white !important; }
-.edit-mode li.checked { background: rgba(168,198,134,0.5) !important; } /* matcha */
-.edit-mode li:not(.checked) { background: rgba(139,0,0,0.5) !important; } /* dark red */
-  </style>
+</style>
 </head>
+
 <body>
+<div id="statusBox">Last Updated: ...</div>
+<div id="passwordBox">
+  Password: <input type="password" id="adminPass" placeholder="••••••">
+  <button id="loginBtn">Enter</button>
+</div>
 
-  <div id="statusBox">Last Updated: ...</div>
+<ul class="checklist" id="checklist">
+  <li data-id="0">Watamote</li>
+  <li data-id="1">Komi can't communicate</li>
+  <li data-id="2">Seaside stranger</li>
+  <li data-id="3">Hirano to Kagiura</li>
+  <li data-id="4">Sasaki to Miyano</li>
+  <li data-id="5">Given</li>
+  <li data-id="6">Fly me to the moon</li>
+  <li data-id="7">Hate me but let me stay</li>
+  <li data-id="8">Lucky star</li>
+  <li data-id="9">Heavens officials blessing</li>
+  <li data-id="10">Cherry magic</li>
+  <li data-id="11">Ouran high school host club</li>
+  <li data-id="12">Doraemon</li>
+  <li data-id="13">Junji Ito Collection: Tomie</li>
+  <li data-id="14">Junji Ito Collection: Uzumaki</li>
+  <li data-id="15">Lost in the Cloud</li>
+  <li data-id="16">Nana</li>
+  <li data-id="17">My Love mix-up!</li>
+  <li data-id="18">Yona of the Dawn</li>
+  <li data-id="19">Cardcaptor Sakura</li>
+  <li data-id="20">Orange</li>
+  <li data-id="21">K-On!</li>
+  <li data-id="22">Sailor Moon</li>
+  <li data-id="23">I Hear the Sunspot</li>
+  <li data-id="24">Nichijou: My Ordinary Life</li>
+  <li data-id="25">Yotsuba&!</li>
+  <li data-id="26">Oshi No Ko</li>
+  <li data-id="27">[Magazine] Ciao</li>
+  <li data-id="28">[Magazine] Dear+</li>
+  <li data-id="29">[Magazine] Cheri+</li>
+</ul>
 
-  <div id="passwordBox">
-    Password: <input id="adminPass" type="password" placeholder="••••••" aria-label="Admin password">
-    <button id="loginBtn" type="button">Enter</button>
-  </div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-  <button id="stopEditBtn" type="button">Stop Editing</button>
+const firebaseConfig = {
+  apiKey: "AIzaSyDSxe-Qf2KPWHMyzn2VLY9YLTwvSudwN1Y",
+  authDomain: "jassminechecklist.firebaseapp.com",
+  projectId: "jassminechecklist",
+  storageBucket: "jassminechecklist.firebasestorage.app",
+  messagingSenderId: "1016129626879",
+  appId: "1:1016129626879:web:fd18483f04d9679bd5e2ca"
+};
 
-  <ul class="checklist" id="checklist">
-    <li data-id="0">Watamote</li>
-    <li data-id="1">Komi can't communicate</li>
-    <li data-id="2">Seaside stranger</li>
-    <li data-id="3">Hirano to Kagiura</li>
-    <li data-id="4">Sasaki to Miyano</li>
-    <li data-id="5">Given</li>
-    <li data-id="6">Fly me to the moon</li>
-    <li data-id="7">Hate me but let me stay</li>
-    <li data-id="8">Lucky star</li>
-    <li data-id="9">Heavens officials blessing</li>
-    <li data-id="10">Cherry magic</li>
-    <li data-id="11">Ouran high school host club</li>
-    <li data-id="12">Doraemon</li>
-    <li data-id="13">Junji Ito Collection: Tomie</li>
-    <li data-id="14">Junji Ito Collection: Uzumaki</li>
-    <li data-id="15">Lost in the Cloud</li>
-    <li data-id="16">Nana</li>
-    <li data-id="17">My Love mix-up!</li>
-    <li data-id="18">Yona of the Dawn</li>
-    <li data-id="19">Cardcaptor Sakura</li>
-    <li data-id="20">Orange</li>
-    <li data-id="21">K-On!</li>
-    <li data-id="22">Sailor Moon</li>
-    <li data-id="23">I Hear the Sunspot</li>
-    <li data-id="24">Nichijou: My Ordinary Life</li>
-    <li data-id="25">Yotsuba&!</li>
-    <li data-id="26">Oshi No Ko</li>
-    <li data-id="27">[Magazine] Ciao</li>
-    <li data-id="28">[Magazine] Dear+</li>
-    <li data-id="29">[Magazine] Cheri+</li>
-  </ul>
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  <!-- Firebase compat build (works on static hosting) -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+const checklist = document.getElementById('checklist');
+const statusBox = document.getElementById('statusBox');
+const adminPassInput = document.getElementById('adminPass');
+const loginBtn = document.getElementById('loginBtn');
 
-  <script>
-  /******************************************************************
-   * Firebase config (the project you asked to use)
-   ******************************************************************/
-  const firebaseConfig = {
-    apiKey: "AIzaSyDSxe-Qf2KPWHMyzn2VLY9YLTwvSudwN1Y",
-    authDomain: "jassminechecklist.firebaseapp.com",
-    projectId: "jassminechecklist",
-    storageBucket: "jassminechecklist.firebasestorage.app",
-    messagingSenderId: "1016129626879",
-    appId: "1:1016129626879:web:fd18483f04d9679bd5e2ca"
-  };
+let isAdmin = false;
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  const mainDocRef = db.collection('checklist').doc('main');
-
-  const adminPassword = 'JasminesDataBase'; // your password (used client-side)
-  let isAdmin = false;
-
-  const checklistEl = document.getElementById('checklist');
-  const statusBox = document.getElementById('statusBox');
-  const adminPassInput = document.getElementById('adminPass');
-  const loginBtn = document.getElementById('loginBtn');
-  const stopEditBtn = document.getElementById('stopEditBtn');
-
-  /***** UTIL: read UI -> state object *****/
-  function readStateFromUI(){
-    const state = {};
-    checklistEl.querySelectorAll('li').forEach(li=>{
-      state[li.dataset.id] = li.classList.contains('checked');
-    });
-    return state;
-  }
-
-  /***** UTIL: apply state to UI (used when snapshot updates) *****/
-  function applyStateToUI(state){
-    checklistEl.querySelectorAll('li').forEach(li=>{
-      const id = li.dataset.id;
-      if (state && state[id]) li.classList.add('checked');
-      else li.classList.remove('checked');
-
-      // Remove any inline styles if not admin (return to base look)
-      if (!isAdmin){
-        li.removeAttribute('style');
-      }
-    });
-  }
-
-  /***** real-time listener: everyone sees updates instantly *****/
-  mainDocRef.onSnapshot(docSnap => {
-    if (!docSnap.exists){
-      statusBox.textContent = "Last Updated: never";
-      return;
-    }
+async function loadChecklist() {
+  const docRef = doc(db, "checklist", "main");
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
     const data = docSnap.data();
-    statusBox.textContent = "Last Updated: " + (data.lastUpdated || 'unknown');
-    // update UI if non-admin (if admin is actively editing, we avoid stomping their inline edits)
-    if (!isAdmin){
-      applyStateToUI(data.state || {});
-    }
-  }, err => {
-    console.error('Firestore onSnapshot error:', err);
-    statusBox.textContent = "Last Updated: error";
-  });
+    statusBox.textContent = "Last Updated: " + (data.lastUpdated || "unknown");
+    checklist.querySelectorAll("li").forEach(item => {
+      const id = item.dataset.id;
+      if (data.state && data.state[id]) item.classList.add("checked");
+      else item.classList.remove("checked");
+    });
+  } else {
+    statusBox.textContent = "Last Updated: never";
+  }
+}
+await loadChecklist();
 
-  /***** save -> includes adminKey required by suggested Firestore rule *****/
-  async function saveChecklist(){
+async function saveChecklist() {
+  if (!isAdmin) return;
+  const state = {};
+  checklist.querySelectorAll("li").forEach(item => {
+    state[item.dataset.id] = item.classList.contains("checked");
+  });
+  await setDoc(doc(db, "checklist", "main"), {
+    state,
+    lastUpdated: new Date().toLocaleString(),
+  });
+  statusBox.textContent = "Last Updated: just now";
+}
+
+checklist.querySelectorAll("li").forEach(item => {
+  item.addEventListener("click", async () => {
     if (!isAdmin) return;
-    const state = readStateFromUI();
-    const payload = {
-      state,
-      lastUpdated: new Date().toLocaleString(),
-      adminKey: adminPassword // Firestore rule (see step-by-step) will check this value
-    };
-    try {
-      await mainDocRef.set(payload);
-      // note: status updated via snapshot too
-    } catch (e) {
-      console.error('Save failed', e);
-      alert('Could not save changes. Check console for details.');
-    }
-  }
-
-  /***** handle clicks on items: editable only when isAdmin *****/
-  checklistEl.querySelectorAll('li').forEach(li => {
-    li.addEventListener('click', async () => {
-      if (!isAdmin) return; // prevent non-admin editing
-      li.classList.toggle('checked');
-
-      // visual inline transition for edit mode (keeps original CSS unchanged otherwise)
-      li.style.transition = "background .8s ease, color .8s ease, opacity .6s ease";
-      if (li.classList.contains('checked')) {
-        li.style.background = "rgba(168,198,134,0.5)"; // matcha
-        li.style.color = "#fff";
-      } else {
-        li.style.background = "rgba(139,0,0,0.5)"; // dark red
-        li.style.color = "#fff";
-      }
-
-      await saveChecklist();
-    });
+    item.classList.toggle("checked");
+    await saveChecklist();
   });
+});
 
-  /***** staggered pop-in for edit mode *****/
-  function staggerFadeIn(){
-    const items = Array.from(checklistEl.querySelectorAll('li'));
-    items.forEach((li, i) => {
-      li.style.opacity = "0";
-      setTimeout(()=> {
-        li.style.transition = "opacity .45s ease";
-        li.style.opacity = "1";
-      }, i * 70);
-    });
-  }
-
-  /***** activate & deactivate edit mode *****/
-  function activateEditMode(){
-    if (isAdmin) return;
+function handleLogin() {
+  if (adminPassInput.value === "JasminesDataBase") {
     isAdmin = true;
-    document.body.classList.add('edit-mode');
-    stopEditBtn.style.display = 'block';
-
-    checklistEl.querySelectorAll('li').forEach(li=>{
-      li.style.transition = "opacity .6s ease, background .8s ease, color .8s ease";
-      li.style.color = "#fff";
-      li.style.background = li.classList.contains('checked')
-        ? "rgba(168,198,134,0.5)"
-        : "rgba(139,0,0,0.5)";
-    });
-
-    staggerFadeIn();
-    loginBtn.blur();
-    adminPassInput.value = '';
+    alert("Developer mode activated — you can now edit the list.");
+  } else {
+    alert("Incorrect password.");
   }
+}
 
-  function deactivateEditMode(){
-    if (!isAdmin) return;
-    isAdmin = false;
-    document.body.classList.remove('edit-mode');
-    stopEditBtn.style.display = 'none';
-    // remove inline styles so original CSS returns (no styling change)
-    checklistEl.querySelectorAll('li').forEach(li => li.removeAttribute('style'));
-  }
-
-  /***** login attempt (button or Enter key) *****/
-  function attemptLogin(){
-    const val = (adminPassInput.value || '').trim();
-    if (val === adminPassword){
-      activateEditMode();
-    } else {
-      adminPassInput.setAttribute('aria-invalid','true');
-      alert('Incorrect password.');
-      adminPassInput.focus();
-    }
-  }
-
-  // Enter key support (works in modern browsers and in an iframe)
-  adminPassInput.addEventListener('keydown', function(e){
-    if (e.key === 'Enter' || e.keyCode === 13){
-      e.preventDefault();
-      attemptLogin();
-    } else if (e.key === 'Escape') {
-      adminPassInput.value = '';
-    }
-  });
-  loginBtn.addEventListener('click', attemptLogin);
-  stopEditBtn.addEventListener('click', deactivateEditMode);
-
-  /***** helper: if 'main' doc doesn't exist yet, we do not create it automatically
-           (admin can create by toggling any item then saving) *****/
-  // A small note: if you want the file to create the doc automatically the first time,
-  // allow writes temporarily in Firestore rules or create the document from the Firebase Console.
-  </script>
+loginBtn.addEventListener("click", handleLogin);
+adminPassInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") handleLogin();
+});
+</script>
 </body>
 </html>
-
