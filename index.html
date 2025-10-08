@@ -5,11 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jasmine’s Checklist</title>
 
-<!-- Fraunces font loaded from Google Fonts -->
+<!-- Fraunces font -->
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-/* === ORIGINAL STYLE === */
 .checklist {
   list-style: none;
   padding: 0;
@@ -25,25 +24,26 @@
   background: #f0f0f0;
   margin-bottom: 10px;
   border-radius: 6px;
-  transition: background 0.3s;
+  transition: background 0.5s, color 0.5s;
   cursor: pointer;
   position: relative;
 }
 
 .checklist li.checked {
-  background: #FFFFFF;
+  background: rgba(168,198,134,0.5); /* green fade */
   animation: checkAnim 0.5s ease-out;
+  color: #fff;
 }
 
 .checklist li::before {
-  content: "🔒";
+  content: "🎁";
   margin-right: 10px;
   font-size: 18px;
   transition: transform 0.3s ease;
 }
 
 .checklist li.checked::before {
-  content: "🔓";
+  content: "📗";
   color: gray;
   transform: scale(1.3);
 }
